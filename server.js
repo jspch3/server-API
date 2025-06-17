@@ -1,50 +1,47 @@
 const express = require('express');
 const cors = require('cors');
+
 const app = express();
 
-// Enable CORS so FCC can test the API
+// Enable CORS for FCC
 app.use(cors());
 
-// Root route (optional for your own testing)
+// Root route
 app.get('/', (req, res) => {
-  res.send('Timestamp Microservice is up');
+  res.send('Timestamp Microservice is running!');
 });
 
-// Main Timestamp API
+// Timestamp API route
 app.get('/api/:date?', (req, res) => {
-  let { date } = req.params;
+  const { date } = req.params;
 
-  // Case 1: No date provided — return current time
+  // If no date is provided, return current timestamp
   if (!date) {
     const now = new Date();
     return res.json({
       unix: now.getTime(),
-      utc: now.toUTCString(),
+      utc: now.toUTCString()
     });
   }
 
-  // Case 2: If date is a UNIX timestamp (milliseconds)
-  if (/^\d+$/.test(date)) {
-    // Convert string to integer and parse as UNIX timestamp
-    date = parseInt(date);
-  }
+  // If it's a numeric string (Unix timestamp)
+  const isUnixTimestamp = /^\d+$/.test(date);
+  const parsedDate = isUnixTimestamp ? new Date(Number(date)) : new Date(date);
 
-  const parsedDate = new Date(date);
-
-  // Case 3: Invalid date
+  // Check for invalid date
   if (parsedDate.toString() === 'Invalid Date') {
     return res.json({ error: 'Invalid Date' });
   }
 
-  // Case 4: Valid date
+  // Return valid timestamp
   return res.json({
     unix: parsedDate.getTime(),
-    utc: parsedDate.toUTCString(),
+    utc: parsedDate.toUTCString()
   });
 });
 
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
 });
